@@ -1,0 +1,19 @@
+language:
+  java
+
+sudo:
+  false
+
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.sonar/cache
+
+install:
+  skip
+
+script:
+  - mvn clean install sonar:sonar -Dsonar.projectKey=piggy1-mvn_piggyback-offers -Dsonar.organization=piggyback -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN -Djib.to.auth.username=$DOCKER_USERNAME -Djib.to.auth.password=$DOCKER_PASSWORD
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
