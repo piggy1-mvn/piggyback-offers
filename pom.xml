@@ -17,16 +17,16 @@
 		<docker.image.prefix>piggy1</docker.image.prefix>
 	</properties>
 	<repositories>
-		<repository>
-			<id>mvn-repo</id>
-			<url>https://raw.githubusercontent.com/piggy1-mvn/repo/repo</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
+	  <repository>
+		<id>piggy1-piggy_repo</id>
+		<url>https://packagecloud.io/piggy1/piggy_repo/maven2</url>
+		<releases>
+		  <enabled>true</enabled>
+		</releases>
+		<snapshots>
+		  <enabled>true</enabled>
+		</snapshots>
+	  </repository>
 	</repositories>
 	<dependencies>
 		<dependency>
