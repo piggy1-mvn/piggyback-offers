@@ -54,6 +54,21 @@
 			<version>1.0-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-gcp-starter-pubsub</artifactId>
+			<version>1.1.2.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>23.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.integration</groupId>
+			<artifactId>spring-integration-core</artifactId>
+			<version>5.1.7.RELEASE</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -67,7 +82,7 @@
 				<version>1.5.0</version>
 				<configuration>
 					<from>
-						<image>openjdk:8-jdk-alpine</image>
+						<image>openjdk:11</image>
 					</from>
 					<to>
 						<image>${docker.image.prefix}/${project.artifactId}</image>
