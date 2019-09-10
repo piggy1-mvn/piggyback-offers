@@ -12,11 +12,15 @@ cache:
 install:
   skip
 
+addons:
+  sonarcloud:
+    organization: "piggyback"
+
 services:
   - docker
 
 script:
-  - mvn clean install sonar:sonar -Dsonar.projectKey=piggy1-mvn_piggyback-offers -Dsonar.organization=piggyback -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_LOGIN
+  - mvn clean verify sonar:sonar -Dsonar.projectKey=piggy1-mvn_piggyback-offers
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t piggy1/offers .
   - docker push piggy1/offers
