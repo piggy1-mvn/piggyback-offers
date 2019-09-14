@@ -21,9 +21,13 @@ services:
 
 script:
   - mvn clean verify sonar:sonar -Dsonar.projectKey=piggy1-mvn_piggyback-offers
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t piggy1/offers .
-  - docker push piggy1/offers
+
+deploy:
+  provider: script
+  script: bash docker_push
+  on:
+    branch: master
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
