@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -31,6 +32,9 @@ public class OfferServiceImpl implements OfferService {
 
 	@Autowired
 	private RestTemplate restTemplate;
+	
+	@Autowired
+	private Environment env;
 
 	@Override
 	public ResponseEntity<OfferDTO> updateOfferStatus(Long id, OfferDTO offers)  {
@@ -71,7 +75,7 @@ public class OfferServiceImpl implements OfferService {
 	@Override
 	public List<LocationDTO> getNearbyUsers(Long userId, Double latitude, 
 			Double longitude, Integer page) {
-		String url = "http://localhost:8080/location/user";
+		String url = env.getProperty("location.api.fetch.nearby.users");
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
