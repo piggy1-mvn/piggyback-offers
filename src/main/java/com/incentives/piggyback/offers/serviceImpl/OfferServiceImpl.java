@@ -15,7 +15,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.incentives.piggyback.offers.dto.GetUsersResponse;
-import com.incentives.piggyback.offers.dto.LocationDTO;
 import com.incentives.piggyback.offers.dto.OfferDTO;
 import com.incentives.piggyback.offers.exception.InvalidRequestException;
 import com.incentives.piggyback.offers.publisher.OffersEventPublisher;
@@ -73,16 +72,15 @@ public class OfferServiceImpl implements OfferService {
 	}
 
 	@Override
-	public List<LocationDTO> getNearbyUsers(Long userId, Double latitude, 
-			Double longitude, Integer page) {
+	public List<String> getNearbyUsers(Long userId, Double latitude, 
+			Double longitude) {
 		String url = env.getProperty("location.api.fetch.nearby.users");
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
 				.queryParam("userId", userId)
 				.queryParam("latitude", latitude)
-				.queryParam("longitude", longitude)
-				.queryParam("page", page);
+				.queryParam("longitude", longitude);
 		HttpEntity<?> entity = new HttpEntity<>(headers);
 		ResponseEntity<GetUsersResponse> response = 
 				restTemplate.exchange(builder.toUriString(), HttpMethod.GET, 
@@ -90,7 +88,7 @@ public class OfferServiceImpl implements OfferService {
 		if (CommonUtility.isNullObject(response.getBody()) ||
 				CommonUtility.isValidList(response.getBody().getData()))
 			throw new InvalidRequestException("No nearby users present!");
-
 		return response.getBody().getData();
 	}
+	
 }

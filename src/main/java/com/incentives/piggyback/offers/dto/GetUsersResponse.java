@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class GetUsersResponse {
 	
-	private List<LocationDTO> data;
+	private List<String> data;
 }
