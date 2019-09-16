@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.incentives.piggyback.offers.dto.BroadcastRequest;
+import com.incentives.piggyback.offers.dto.BroadcastResponse;
 import com.incentives.piggyback.offers.dto.GetUsersResponse;
 import com.incentives.piggyback.offers.dto.OfferDTO;
 import com.incentives.piggyback.offers.exception.InvalidRequestException;
@@ -31,7 +33,7 @@ public class OfferServiceImpl implements OfferService {
 
 	@Autowired
 	private RestTemplate restTemplate;
-	
+
 	@Autowired
 	private Environment env;
 
@@ -90,5 +92,19 @@ public class OfferServiceImpl implements OfferService {
 			throw new InvalidRequestException("No nearby users present!");
 		return response.getBody().getData();
 	}
-	
+
+	@Override
+	public String sendNotification(BroadcastRequest broadcastRequest) {
+		String url = env.getProperty("notification.api.broadcast");
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+		HttpEntity<?> entity = new HttpEntity<>(broadcastRequest, headers);
+		ResponseEntity<BroadcastResponse> response = 
+				restTemplate.exchange(url, HttpMethod.POST, 
+						entity, BroadcastResponse.class);
+		if (CommonUtility.isNullObject(response.getBody()) ||
+				CommonUtility.isValidString(response.getBody().getData()))
+			throw new InvalidRequestException("Broadcast of notifications failed");
+		return response.getBody().getData();
+	}
 }

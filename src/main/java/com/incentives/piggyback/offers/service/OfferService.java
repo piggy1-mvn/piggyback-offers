@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 
+import com.incentives.piggyback.offers.dto.BroadcastRequest;
 import com.incentives.piggyback.offers.dto.OfferDTO;
 import com.incentives.piggyback.offers.exception.InvalidRequestException;
 
@@ -13,4 +14,5 @@ public interface OfferService {
 
 	List<String> getNearbyUsers(Long userId, Double latitude, Double longitude);
 
+	String sendNotification(BroadcastRequest broadcastRequest);
 }
