@@ -15,4 +15,5 @@ public interface OfferService {
 	List<String> getNearbyUsers(Long userId, Double latitude, Double longitude);
 
 	String sendNotification(BroadcastRequest broadcastRequest);
+
 }
