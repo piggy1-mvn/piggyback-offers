@@ -7,4 +7,5 @@ public interface Constant {
     String OFFER_CREATED_EVENT = "Offers Events Created";
     String OFFER_UPDATED_EVENT = "Offers Events Updated";
     String OFFER_DEACTIVATED_EVENT = "Offers Events Deactivated";
+    String OFFER_SERVICE_PARTNER_SUBSCRIBER = "offerPartnerSubscriber";
 }
