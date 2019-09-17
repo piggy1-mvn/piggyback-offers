@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -108,9 +109,9 @@ public class OfferServiceImpl implements OfferService {
 			throw new InvalidRequestException("Broadcast of notifications failed");
 		return response.getBody().getData();
 	}
-	
+
 	@Override
-	public String getUsersWithInterest(List<Long> users, List<String> interests) {
+	public List<UserData> getUsersWithInterest(List<Long> users, List<String> interests) {
 		String url = env.getProperty("users.api.usersWithInterest");
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
@@ -118,13 +119,13 @@ public class OfferServiceImpl implements OfferService {
 				.queryParam("users", users)
 				.queryParam("interest", interests);
 		HttpEntity<?> entity = new HttpEntity<>(headers);
-		ResponseEntity<UserData> response = 
+		ResponseEntity<List<UserData>> response = 
 				restTemplate.exchange(builder.toUriString(), HttpMethod.GET, 
-						entity, List<UserData>.class);
+						entity, new ParameterizedTypeReference<List<UserData>>(){});
 		if (CommonUtility.isNullObject(response.getBody()) ||
 				CommonUtility.isValidList(response.getBody()))
-			throw new InvalidRequestException("Broadcast of notifications failed");
-		return response.getBody().getData();
+			throw new InvalidRequestException("No users with desired interest found!");
+		return response.getBody();
 	}
 
 }

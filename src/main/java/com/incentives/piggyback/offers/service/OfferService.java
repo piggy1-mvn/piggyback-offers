@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.incentives.piggyback.offers.dto.BroadcastRequest;
 import com.incentives.piggyback.offers.dto.OfferDTO;
+import com.incentives.piggyback.offers.dto.UserData;
 import com.incentives.piggyback.offers.exception.InvalidRequestException;
 
 public interface OfferService {
@@ -16,6 +17,6 @@ public interface OfferService {
 
 	String sendNotification(BroadcastRequest broadcastRequest);
 
-	String getUsersWithInterest(List<Long> users, List<String> interests);
+	List<UserData> getUsersWithInterest(List<Long> users, List<String> interests);
 
 }
