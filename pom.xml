@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -17,16 +18,16 @@
 		<docker.image.prefix>piggy1</docker.image.prefix>
 	</properties>
 	<repositories>
-	  <repository>
-		<id>piggy1-piggy_repo</id>
-		<url>https://packagecloud.io/piggy1/piggy_repo/maven2</url>
-		<releases>
-		  <enabled>true</enabled>
-		</releases>
-		<snapshots>
-		  <enabled>true</enabled>
-		</snapshots>
-	  </repository>
+		<repository>
+			<id>piggy1-piggy_repo</id>
+			<url>https://packagecloud.io/piggy1/piggy_repo/maven2</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -74,6 +75,10 @@
 			<artifactId>powermock-module-junit4</artifactId>
 			<version>2.0.2</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.powermock</groupId>

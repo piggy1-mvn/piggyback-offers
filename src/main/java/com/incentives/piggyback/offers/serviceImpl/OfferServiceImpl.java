@@ -2,6 +2,7 @@ package com.incentives.piggyback.offers.serviceImpl;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -15,17 +16,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.google.gson.Gson;
+import com.incentives.piggyback.offers.adapter.ObjectAdapter;
 import com.incentives.piggyback.offers.dto.BroadcastRequest;
 import com.incentives.piggyback.offers.dto.BroadcastResponse;
 import com.incentives.piggyback.offers.dto.GetUsersResponse;
 import com.incentives.piggyback.offers.dto.OfferDTO;
 import com.incentives.piggyback.offers.dto.UserData;
+import com.incentives.piggyback.offers.entity.OfferEntity;
 import com.incentives.piggyback.offers.exception.InvalidRequestException;
 import com.incentives.piggyback.offers.publisher.OffersEventPublisher;
+import com.incentives.piggyback.offers.repository.OfferRepository;
 import com.incentives.piggyback.offers.service.OfferService;
 import com.incentives.piggyback.offers.utils.CommonUtility;
 import com.incentives.piggyback.offers.utils.constants.Constant;
-import com.incentives.piggyback.offers.utils.constants.OfferStatus;
 
 @Service
 public class OfferServiceImpl implements OfferService {
@@ -39,40 +43,38 @@ public class OfferServiceImpl implements OfferService {
 	@Autowired
 	private Environment env;
 
+	@Autowired
+	private OfferRepository offerRepository;
+
+	Gson gson = new Gson();
+
 	@Override
-	public ResponseEntity<OfferDTO> updateOfferStatus(Long id, OfferDTO offers)  {
-		updateOffer(offers);
-		//PUSHING MESSAGES TO GCP
+	public ResponseEntity<OfferDTO> updateOfferStatus(OfferDTO offer)  {
+		Optional<OfferEntity> offerEntity = offerRepository.findById(offer.getOfferId());
+		if (!offerEntity.isPresent())
+			throw new InvalidRequestException("No offer available for this id");
+
+		offerRepository.save(ObjectAdapter.updateOfferEntity(offerEntity.get(), offer));
+		publishOffer(offer, Constant.OFFER_UPDATED_EVENT);
+		return ResponseEntity.ok(offer);
+	}
+
+	@Override
+	public ResponseEntity<OfferEntity> offerForPartnerOrder(OfferDTO offer) {
+		OfferEntity offerEntity = offerRepository.save(ObjectAdapter.getOfferEntity(offer));
+		publishOffer(offer, Constant.OFFER_CREATED_EVENT);
+		return ResponseEntity.ok(offerEntity);
+	}
+
+	private void publishOffer(OfferDTO offer, String status) {
 		messagingGateway.sendToPubsub(
 				CommonUtility.stringifyEventForPublish(
-						offers.toString(),
-						Constant.OFFER_CREATED_EVENT,
+						gson.toJson(offer),
+						status,
 						Calendar.getInstance().getTime().toString(),
 						"",
 						Constant.OFFER_SOURCE_ID
 						));
-		return ResponseEntity.ok(offers);
-	}
-
-	private OfferDTO updateOffer(OfferDTO offer) {
-		// as these are mandatory fields and should be present for update
-		if(offer.getOfferId()!=null && offer.getPartnerId()!=null && offer.getOfferCode()!=null){
-
-			if (OfferStatus.getAllStatus().contains(offer.getOfferStatus()))
-				offer.setOfferStatus(offer.getOfferStatus());
-			else
-				throw new InvalidRequestException("Invalid Status");
-
-			//date need to be updated to activate the offer
-			if(null!=offer.getOfferValidTill())
-				offer.setOfferValidTill(offer.getOfferValidTill());
-			else
-				throw new InvalidRequestException("Offer Validity date is not passed");
-
-			return offer;
-		} else {
-			throw new InvalidRequestException("Offer Id or Order Id or OfferCode cannot be null");
-		}
 	}
 
 	@Override
@@ -127,5 +129,4 @@ public class OfferServiceImpl implements OfferService {
 			throw new InvalidRequestException("No users with desired interest found!");
 		return response.getBody();
 	}
-
 }
