@@ -1,6 +1,5 @@
 package com.incentives.piggyback.offers.serviceImpl;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -19,6 +18,7 @@ import com.incentives.piggyback.offers.dto.BroadcastRequest;
 import com.incentives.piggyback.offers.dto.BroadcastResponse;
 import com.incentives.piggyback.offers.dto.GetUsersResponse;
 import com.incentives.piggyback.offers.dto.OfferDTO;
+import com.incentives.piggyback.offers.dto.UserData;
 import com.incentives.piggyback.offers.exception.InvalidRequestException;
 import com.incentives.piggyback.offers.publisher.OffersEventPublisher;
 import com.incentives.piggyback.offers.service.OfferService;
@@ -105,6 +105,24 @@ public class OfferServiceImpl implements OfferService {
 						entity, BroadcastResponse.class);
 		if (CommonUtility.isNullObject(response.getBody()) ||
 				CommonUtility.isValidString(response.getBody().getData()))
+			throw new InvalidRequestException("Broadcast of notifications failed");
+		return response.getBody().getData();
+	}
+	
+	@Override
+	public String getUsersWithInterest(List<Long> users, List<String> interests) {
+		String url = env.getProperty("users.api.usersWithInterest");
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
+				.queryParam("users", users)
+				.queryParam("interest", interests);
+		HttpEntity<?> entity = new HttpEntity<>(headers);
+		ResponseEntity<UserData> response = 
+				restTemplate.exchange(builder.toUriString(), HttpMethod.GET, 
+						entity, List<UserData>.class);
+		if (CommonUtility.isNullObject(response.getBody()) ||
+				CommonUtility.isValidList(response.getBody()))
 			throw new InvalidRequestException("Broadcast of notifications failed");
 		return response.getBody().getData();
 	}

@@ -16,4 +16,6 @@ public interface OfferService {
 
 	String sendNotification(BroadcastRequest broadcastRequest);
 
+	String getUsersWithInterest(List<Long> users, List<String> interests);
+
 }
