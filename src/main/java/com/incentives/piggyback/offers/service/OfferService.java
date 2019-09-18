@@ -6,18 +6,19 @@ import org.springframework.http.ResponseEntity;
 
 import com.incentives.piggyback.offers.dto.BroadcastRequest;
 import com.incentives.piggyback.offers.dto.OfferDTO;
+import com.incentives.piggyback.offers.dto.PartnerOrderDTO;
 import com.incentives.piggyback.offers.dto.UserData;
 import com.incentives.piggyback.offers.entity.OfferEntity;
 
 public interface OfferService {
 
-	List<String> getNearbyUsers(Long userId, Double latitude, Double longitude);
+	List<Long> getNearbyUsers(Long userId, double latitude, double longitude);
 
 	String sendNotification(BroadcastRequest broadcastRequest);
 
 	List<UserData> getUsersWithInterest(List<Long> users, List<String> interests);
 
-	ResponseEntity<OfferEntity> offerForPartnerOrder(OfferDTO offer);
+	ResponseEntity<OfferEntity> offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO);
 
 	ResponseEntity<OfferDTO> updateOfferStatus(OfferDTO offer);
 }

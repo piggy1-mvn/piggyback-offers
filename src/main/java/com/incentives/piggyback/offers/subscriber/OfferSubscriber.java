@@ -1,8 +1,7 @@
 package com.incentives.piggyback.offers.subscriber;
 
-import com.google.cloud.pubsub.v1.AckReplyConsumer;
-import com.incentives.piggyback.offers.OffersApplication;
-import com.incentives.piggyback.offers.service.OfferService;
+import static com.incentives.piggyback.offers.utils.constants.Constant.OFFER_SERVICE_PARTNER_SUBSCRIBER;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,11 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Service;
 
-import static com.incentives.piggyback.offers.utils.constants.Constant.OFFER_SERVICE_PARTNER_SUBSCRIBER;
+import com.google.cloud.pubsub.v1.AckReplyConsumer;
+import com.google.gson.Gson;
+import com.incentives.piggyback.offers.OffersApplication;
+import com.incentives.piggyback.offers.dto.PartnerOrderDTO;
+import com.incentives.piggyback.offers.service.OfferService;
 
 @Service
 public class OfferSubscriber {
@@ -27,6 +30,8 @@ public class OfferSubscriber {
 
     @Autowired
     private OfferService offerService;
+    
+    Gson gson = new Gson();
 
     @Bean
     public MessageChannel pubsubInputChannelForPartner() {
@@ -49,6 +54,9 @@ public class OfferSubscriber {
     public MessageHandler messageReceiverForPartner() {
         return message -> {
             LOGGER.info(OFFER_SERVICE_PARTNER_SUBSCRIBER + ": Payload: " + new String((byte[]) message.getPayload()));
+            String messagePayload = (String) message.getPayload();
+            PartnerOrderDTO partnerOrderData = gson.fromJson(messagePayload, PartnerOrderDTO.class);
+            offerService.offerForPartnerOrder(partnerOrderData);
             AckReplyConsumer consumer =
                     (AckReplyConsumer) message.getHeaders().get(GcpPubSubHeaders.ACKNOWLEDGEMENT);
             consumer.ack();

@@ -8,4 +8,6 @@ public interface Constant {
     String OFFER_UPDATED_EVENT = "Offers Events Updated";
     String OFFER_DEACTIVATED_EVENT = "Offers Events Deactivated";
     String OFFER_SERVICE_PARTNER_SUBSCRIBER = "offerPartnerSubscriber";
+    
+    String EMAIL_TITLE = "Here's your exclusive offer code!";
 }

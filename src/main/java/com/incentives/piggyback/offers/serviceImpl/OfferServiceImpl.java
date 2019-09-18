@@ -22,6 +22,7 @@ import com.incentives.piggyback.offers.dto.BroadcastRequest;
 import com.incentives.piggyback.offers.dto.BroadcastResponse;
 import com.incentives.piggyback.offers.dto.GetUsersResponse;
 import com.incentives.piggyback.offers.dto.OfferDTO;
+import com.incentives.piggyback.offers.dto.PartnerOrderDTO;
 import com.incentives.piggyback.offers.dto.UserData;
 import com.incentives.piggyback.offers.entity.OfferEntity;
 import com.incentives.piggyback.offers.exception.InvalidRequestException;
@@ -48,6 +49,18 @@ public class OfferServiceImpl implements OfferService {
 
 	Gson gson = new Gson();
 
+
+	@Override
+	public ResponseEntity<OfferEntity> offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO) {
+		OfferEntity offerEntity = offerRepository.save(ObjectAdapter.generateOfferEntity(partnerOrderDTO));
+		publishOffer(offerEntity, Constant.OFFER_CREATED_EVENT);
+		List<Long> usersList = getNearbyUsers(offerEntity.getInitiatorUserId(), offerEntity.getOrderLocation().getLatitude(),
+				offerEntity.getOrderLocation().getLongitude());
+		List<UserData> usersDataList = getUsersWithInterest(usersList, partnerOrderDTO.getInterestCategories());
+		sendNotification(ObjectAdapter.generateBroadCastRequest(usersDataList, offerEntity));
+		return ResponseEntity.ok(offerEntity);
+	}
+
 	@Override
 	public ResponseEntity<OfferDTO> updateOfferStatus(OfferDTO offer)  {
 		Optional<OfferEntity> offerEntity = offerRepository.findById(offer.getOfferId());
@@ -55,18 +68,11 @@ public class OfferServiceImpl implements OfferService {
 			throw new InvalidRequestException("No offer available for this id");
 
 		offerRepository.save(ObjectAdapter.updateOfferEntity(offerEntity.get(), offer));
-		publishOffer(offer, Constant.OFFER_UPDATED_EVENT);
+		publishOffer(offerEntity.get(), Constant.OFFER_UPDATED_EVENT);
 		return ResponseEntity.ok(offer);
 	}
 
-	@Override
-	public ResponseEntity<OfferEntity> offerForPartnerOrder(OfferDTO offer) {
-		OfferEntity offerEntity = offerRepository.save(ObjectAdapter.getOfferEntity(offer));
-		publishOffer(offer, Constant.OFFER_CREATED_EVENT);
-		return ResponseEntity.ok(offerEntity);
-	}
-
-	private void publishOffer(OfferDTO offer, String status) {
+	private void publishOffer(OfferEntity offer, String status) {
 		messagingGateway.sendToPubsub(
 				CommonUtility.stringifyEventForPublish(
 						gson.toJson(offer),
@@ -78,8 +84,8 @@ public class OfferServiceImpl implements OfferService {
 	}
 
 	@Override
-	public List<String> getNearbyUsers(Long userId, Double latitude, 
-			Double longitude) {
+	public List<Long> getNearbyUsers(Long userId, double latitude, 
+			double longitude) {
 		String url = env.getProperty("location.api.fetch.nearby.users");
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
