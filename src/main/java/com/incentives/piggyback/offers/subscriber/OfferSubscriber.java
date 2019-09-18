@@ -33,7 +33,6 @@ public class OfferSubscriber {
         return new DirectChannel();
     }
 
-
     @Bean
     public PubSubInboundChannelAdapter messageChannelAdapterForPartner(
             @Qualifier("pubsubInputChannelForPartnerToOffer") MessageChannel inputChannel, PubSubTemplate pubSubTemplate) {
