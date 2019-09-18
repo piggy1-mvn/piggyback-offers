@@ -8,12 +8,12 @@ import java.util.UUID;
 
 import com.incentives.piggyback.offers.dto.BroadcastRequest;
 import com.incentives.piggyback.offers.dto.EmailRequest;
-import com.incentives.piggyback.offers.dto.OfferDTO;
 import com.incentives.piggyback.offers.dto.PartnerOrderDTO;
 import com.incentives.piggyback.offers.dto.PushNotificationPayload;
 import com.incentives.piggyback.offers.dto.PushNotificationRequest;
 import com.incentives.piggyback.offers.dto.UserData;
 import com.incentives.piggyback.offers.entity.OfferEntity;
+import com.incentives.piggyback.offers.utils.CommonUtility;
 import com.incentives.piggyback.offers.utils.constants.Constant;
 import com.incentives.piggyback.offers.utils.constants.OfferStatus;
 
@@ -39,7 +39,25 @@ public class ObjectAdapter {
 		offerEntity.setExpiryDate(generateExpiryDate(partnerOrderDTO.getOptimizationDuration()));
 		return offerEntity;
 	}
-	
+
+	public static OfferEntity updateOfferEntity(OfferEntity offerEntity, PartnerOrderDTO partnerOrderDTO) {
+		if (!CommonUtility.isNullObject(partnerOrderDTO.getOrderLocation()))
+			offerEntity.setOrderLocation(partnerOrderDTO.getOrderLocation());
+		if (CommonUtility.isValidLong(partnerOrderDTO.getInitiatorUserId()))
+			offerEntity.setInitiatorUserId(partnerOrderDTO.getInitiatorUserId());
+		if (CommonUtility.isValidString(partnerOrderDTO.getPartnerId()))
+			offerEntity.setPartnerId(partnerOrderDTO.getPartnerId());
+		offerEntity.setOfferQuota(partnerOrderDTO.getMaxOptimizations());
+		if (offerEntity.getExpiryDate().before(Calendar.getInstance().getTime())
+				|| offerEntity.getOfferQuota() < 1) {
+			offerEntity.setOfferStatus(OfferStatus.INACTIVE.name());
+		} else {
+			offerEntity.setOfferStatus(OfferStatus.ACTIVE.name());
+		}
+		offerEntity.setLastModifiedDate(Calendar.getInstance().getTime());
+		return offerEntity;
+	}
+
 	public static BroadcastRequest generateBroadCastRequest(List<UserData> users, OfferEntity offer) {
 		BroadcastRequest broadcastRequest = new BroadcastRequest();
 		List<EmailRequest> emailList = new ArrayList<EmailRequest>();
@@ -65,31 +83,15 @@ public class ObjectAdapter {
 		broadcastRequest.setEmailRequestList(emailList);
 		return broadcastRequest;
 	}
-	
-	
+
+
 	public static Date generateExpiryDate(double optimizationDuration) {
 		Calendar expiryCal = Calendar.getInstance();
 		expiryCal.add(Calendar.MILLISECOND, Integer.parseInt(""+optimizationDuration));
 		return expiryCal.getTime();
 	}
-	
+
 	public static String generateOfferCode() {
 		return "Pig-inc-"+UUID.randomUUID().toString().subSequence(5, 10);
-	}
-
-	public static OfferEntity updateOfferEntity(OfferEntity offerEntity, OfferDTO offer) {
-		offerEntity.setBenefit(offer.getBenefit());
-		offerEntity.setOrderId(offer.getOrderId());
-		offerEntity.setPartnerId(offer.getPartnerId());
-		offerEntity.setOfferCode(offer.getOfferCode());
-		offerEntity.setExpiryDate(offer.getExpiryDate());
-		if (offerEntity.getExpiryDate().before(Calendar.getInstance().getTime())) {
-			offerEntity.setOfferStatus(OfferStatus.INACTIVE.name());
-		} else {
-			offerEntity.setOfferStatus(OfferStatus.ACTIVE.name());
-		}
-		offerEntity.setBenefit(offer.getBenefit());
-		offerEntity.setOfferDescription(offer.getOfferDescription());
-		return offerEntity;
 	}
 }

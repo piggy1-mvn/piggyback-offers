@@ -2,7 +2,6 @@ package com.incentives.piggyback.offers.serviceImpl;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -21,7 +20,6 @@ import com.incentives.piggyback.offers.adapter.ObjectAdapter;
 import com.incentives.piggyback.offers.dto.BroadcastRequest;
 import com.incentives.piggyback.offers.dto.BroadcastResponse;
 import com.incentives.piggyback.offers.dto.GetUsersResponse;
-import com.incentives.piggyback.offers.dto.OfferDTO;
 import com.incentives.piggyback.offers.dto.PartnerOrderDTO;
 import com.incentives.piggyback.offers.dto.UserData;
 import com.incentives.piggyback.offers.entity.OfferEntity;
@@ -49,38 +47,25 @@ public class OfferServiceImpl implements OfferService {
 
 	Gson gson = new Gson();
 
-
 	@Override
-	public ResponseEntity<OfferEntity> offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO) {
+	public void offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO) {
 		OfferEntity offerEntity = offerRepository.save(ObjectAdapter.generateOfferEntity(partnerOrderDTO));
 		publishOffer(offerEntity, Constant.OFFER_CREATED_EVENT);
 		List<Long> usersList = getNearbyUsers(offerEntity.getInitiatorUserId(), offerEntity.getOrderLocation().getLatitude(),
 				offerEntity.getOrderLocation().getLongitude());
 		List<UserData> usersDataList = getUsersWithInterest(usersList, partnerOrderDTO.getInterestCategories());
 		sendNotification(ObjectAdapter.generateBroadCastRequest(usersDataList, offerEntity));
-		return ResponseEntity.ok(offerEntity);
 	}
+	
 
 	@Override
-	public ResponseEntity<OfferDTO> updateOfferStatus(OfferDTO offer)  {
-		Optional<OfferEntity> offerEntity = offerRepository.findById(offer.getOfferId());
-		if (!offerEntity.isPresent())
+	public void updateOfferStatus(PartnerOrderDTO partnerOrderData) {
+		List<OfferEntity> offerList = offerRepository.findByOrderId(partnerOrderData.getOrderId());
+		if (!CommonUtility.isValidList(offerList))
 			throw new InvalidRequestException("No offer available for this id");
-
-		offerRepository.save(ObjectAdapter.updateOfferEntity(offerEntity.get(), offer));
-		publishOffer(offerEntity.get(), Constant.OFFER_UPDATED_EVENT);
-		return ResponseEntity.ok(offer);
-	}
-
-	private void publishOffer(OfferEntity offer, String status) {
-		messagingGateway.sendToPubsub(
-				CommonUtility.stringifyEventForPublish(
-						gson.toJson(offer),
-						status,
-						Calendar.getInstance().getTime().toString(),
-						"",
-						Constant.OFFER_SOURCE_ID
-						));
+		OfferEntity offer = offerList.get(0);
+		offerRepository.save(ObjectAdapter.updateOfferEntity(offer, partnerOrderData));
+		publishOffer(offer, Constant.OFFER_UPDATED_EVENT);
 	}
 
 	@Override
@@ -135,4 +120,17 @@ public class OfferServiceImpl implements OfferService {
 			throw new InvalidRequestException("No users with desired interest found!");
 		return response.getBody();
 	}
+	
+
+	private void publishOffer(OfferEntity offer, String status) {
+		messagingGateway.sendToPubsub(
+				CommonUtility.stringifyEventForPublish(
+						gson.toJson(offer),
+						status,
+						Calendar.getInstance().getTime().toString(),
+						"",
+						Constant.OFFER_SOURCE_ID
+						));
+	}
+
 }
