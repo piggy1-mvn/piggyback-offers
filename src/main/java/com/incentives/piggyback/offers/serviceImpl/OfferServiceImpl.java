@@ -53,7 +53,7 @@ public class OfferServiceImpl implements OfferService {
 		publishOffer(offerEntity, Constant.OFFER_CREATED_EVENT);
 		List<Long> userIdsList = getNearbyUsers(offerEntity.getInitiatorUserId(), offerEntity.getOrderLocation().getLatitude(),
 				offerEntity.getOrderLocation().getLongitude());
-		List<UserData> usersDataList = getUsersWithInterest(userIdsList, partnerOrderDTO.getInterestCategory());
+		List<UserData> usersDataList = getUsersWithInterest(userIdsList, partnerOrderDTO.getOrderType());
 		sendNotification(ObjectAdapter.generateBroadCastRequest(usersDataList, offerEntity));
 	}
 	
@@ -129,7 +129,7 @@ public class OfferServiceImpl implements OfferService {
 						gson.toJson(offer),
 						status,
 						Calendar.getInstance().getTime().toString(),
-						"",
+						offer.getPartnerId(),
 						Constant.OFFER_SOURCE_ID
 						));
 	}

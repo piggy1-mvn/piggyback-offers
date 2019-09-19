@@ -21,7 +21,7 @@ public class OfferEntity {
 	private String partnerAppUrl;
 	private String offerCode;
 	private Location orderLocation;
-	private String interestCategory;
+	private String orderType;
 	private Long initiatorUserId;
 	private Integer maxOptimizations;
 	private String offerStatus;

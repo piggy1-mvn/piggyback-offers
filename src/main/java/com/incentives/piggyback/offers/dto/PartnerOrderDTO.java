@@ -11,7 +11,6 @@ public class PartnerOrderDTO {
 	private String partnerId;
 	private String orderType;
 	private String orderStatus;
-	private String interestCategory;
 	private double optimizationDuration;
 	private Location orderLocation;
 	private int maxOptimizations;

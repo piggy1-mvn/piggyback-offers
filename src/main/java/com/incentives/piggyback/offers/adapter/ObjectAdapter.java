@@ -24,6 +24,7 @@ public class ObjectAdapter {
 		offerEntity.setOfferId(UUID.randomUUID().getMostSignificantBits());
 		offerEntity.setOfferCode(generateOfferCode());
 		offerEntity.setOrderId(partnerOrderDTO.getOrderId());
+		offerEntity.setOrderType(partnerOrderDTO.getOrderType());
 		offerEntity.setOrderLocation(partnerOrderDTO.getOrderLocation());
 		offerEntity.setInitiatorUserId(partnerOrderDTO.getInitiatorUserId());
 		offerEntity.setPartnerId(partnerOrderDTO.getPartnerId());
@@ -31,7 +32,6 @@ public class ObjectAdapter {
 		offerEntity.setOfferStatus(OfferStatus.ACTIVE.name());
 		offerEntity.setPartnerAppUrl(partnerOrderDTO.getPartnerRedirectUrl());
 		offerEntity.setPartnerName(partnerOrderDTO.getPartnerDisplayName());
-		offerEntity.setInterestCategory(partnerOrderDTO.getInterestCategory());
 		offerEntity.setOfferDescription(partnerOrderDTO.getOrderType());
 		offerEntity.setCreatedDate(Calendar.getInstance().getTime());
 		offerEntity.setLastModifiedDate(Calendar.getInstance().getTime());
