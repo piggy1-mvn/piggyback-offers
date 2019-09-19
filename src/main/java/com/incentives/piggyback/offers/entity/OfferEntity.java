@@ -29,4 +29,5 @@ public class OfferEntity {
 	private Date createdDate;
 	private Date lastModifiedDate;
 	private Date expiryDate;
+	private double optimizationRadius;
 }

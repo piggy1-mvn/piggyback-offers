@@ -52,7 +52,7 @@ public class OfferServiceImpl implements OfferService {
 		OfferEntity offerEntity = offerRepository.save(ObjectAdapter.generateOfferEntity(partnerOrderDTO));
 		publishOffer(offerEntity, Constant.OFFER_CREATED_EVENT);
 		List<Long> userIdsList = getNearbyUsers(offerEntity.getInitiatorUserId(), offerEntity.getOrderLocation().getLatitude(),
-				offerEntity.getOrderLocation().getLongitude());
+				offerEntity.getOrderLocation().getLongitude(), offerEntity.getOptimizationRadius());
 		List<UserData> usersDataList = getUsersWithInterest(userIdsList, partnerOrderDTO.getOrderType());
 		sendNotification(ObjectAdapter.generateBroadCastRequest(usersDataList, offerEntity));
 	}
@@ -70,14 +70,15 @@ public class OfferServiceImpl implements OfferService {
 
 	@Override
 	public List<Long> getNearbyUsers(Long userId, double latitude, 
-			double longitude) {
+			double longitude, double optimizedRadius) {
 		String url = env.getProperty("location.api.fetch.nearby.users");
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
 				.queryParam("userId", userId)
 				.queryParam("latitude", latitude)
-				.queryParam("longitude", longitude);
+				.queryParam("longitude", longitude)
+				.queryParam("optimizedRadius", optimizedRadius);
 		HttpEntity<?> entity = new HttpEntity<>(headers);
 		ResponseEntity<GetUsersResponse> response = 
 				restTemplate.exchange(builder.toUriString(), HttpMethod.GET, 
