@@ -1,34 +1,12 @@
 package com.incentives.piggyback.offers.dto;
 
-public class PushNotificationPayload {
+import lombok.Data;
 
-	private String notificationID;
-	private String notificationTitle;
-	private String notificationMessage;
+@Data
+public class PushNotificationPayload {
 	
-	public String getNotificationID() {
-		return notificationID;
-	}
-	public String getNotificationTitle() {
-		return notificationTitle;
-	}
-	public String getNotificationMessage() {
-		return notificationMessage;
-	}
-	public void setNotificationID(String notificationID) {
-		this.notificationID = notificationID;
-	}
-	public void setNotificationTitle(String notificationTitle) {
-		this.notificationTitle = notificationTitle;
-	}
-	public void setNotificationMessage(String notificationMessage) {
-		this.notificationMessage = notificationMessage;
-	}
-	
-	@Override
-	public String toString() {
-		return "PushNotification [notificationID=" + notificationID + ", notificationTitle=" + notificationTitle
-				+ ", notificationMessage=" + notificationMessage + "]";
-	}
-	
+	private String body;
+	private String title;
+	private String partner_url;
+	private String voucher_code;
 }

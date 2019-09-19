@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class GetUsersResponse {
 	
-	private List<String> data;
+	private List<Long> data;
 }
