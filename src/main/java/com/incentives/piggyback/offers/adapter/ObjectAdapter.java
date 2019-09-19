@@ -27,12 +27,11 @@ public class ObjectAdapter {
 		offerEntity.setOrderLocation(partnerOrderDTO.getOrderLocation());
 		offerEntity.setInitiatorUserId(partnerOrderDTO.getInitiatorUserId());
 		offerEntity.setPartnerId(partnerOrderDTO.getPartnerId());
-		offerEntity.setOptimizationRadius(partnerOrderDTO.getOptimizationRadius());
-		offerEntity.setOfferQuota(partnerOrderDTO.getMaxOptimizations());
+		offerEntity.setMaxOptimizations(partnerOrderDTO.getMaxOptimizations());
 		offerEntity.setOfferStatus(OfferStatus.ACTIVE.name());
-		offerEntity.setVendorAppUrl(partnerOrderDTO.getVendorRedirectUrl());
-		offerEntity.setVendorName(partnerOrderDTO.getVendorDisplayName());
-		offerEntity.setInterestCategories(partnerOrderDTO.getInterestCategories());
+		offerEntity.setPartnerAppUrl(partnerOrderDTO.getPartnerRedirectUrl());
+		offerEntity.setPartnerName(partnerOrderDTO.getPartnerDisplayName());
+		offerEntity.setInterestCategory(partnerOrderDTO.getInterestCategory());
 		offerEntity.setOfferDescription(partnerOrderDTO.getOrderType());
 		offerEntity.setCreatedDate(Calendar.getInstance().getTime());
 		offerEntity.setLastModifiedDate(Calendar.getInstance().getTime());
@@ -47,9 +46,9 @@ public class ObjectAdapter {
 			offerEntity.setInitiatorUserId(partnerOrderDTO.getInitiatorUserId());
 		if (CommonUtility.isValidString(partnerOrderDTO.getPartnerId()))
 			offerEntity.setPartnerId(partnerOrderDTO.getPartnerId());
-		offerEntity.setOfferQuota(partnerOrderDTO.getMaxOptimizations());
+		offerEntity.setMaxOptimizations(partnerOrderDTO.getMaxOptimizations());
 		if (offerEntity.getExpiryDate().before(Calendar.getInstance().getTime())
-				|| offerEntity.getOfferQuota() < 1) {
+				|| offerEntity.getMaxOptimizations() < 1) {
 			offerEntity.setOfferStatus(OfferStatus.INACTIVE.name());
 		} else {
 			offerEntity.setOfferStatus(OfferStatus.ACTIVE.name());
@@ -66,8 +65,8 @@ public class ObjectAdapter {
 			EmailRequest email = new EmailRequest();
 			email.setEmailId(user.getEmail());
 			email.setCouponCode(offer.getOfferCode());
-			email.setVendorDisplayName(offer.getVendorName());
-			email.setRedirectUrl(offer.getVendorAppUrl());
+			email.setVendorDisplayName(offer.getPartnerName());
+			email.setRedirectUrl(offer.getPartnerAppUrl());
 			emailList.add(email);
 			recepients.add(user.getDevice_id());
 		});
@@ -75,7 +74,7 @@ public class ObjectAdapter {
 		PushNotificationPayload pushNotificationPayload = new PushNotificationPayload();
 		pushNotificationPayload.setVoucher_code(offer.getOfferCode());
 		pushNotificationPayload.setBody(offer.getOfferDescription());
-		pushNotificationPayload.setPartner_url(offer.getVendorAppUrl());
+		pushNotificationPayload.setPartner_url(offer.getPartnerAppUrl());
 		pushNotificationPayload.setTitle(Constant.EMAIL_TITLE);
 		pushNotificationRequest.setRecepients(recepients);
 		pushNotificationRequest.setPushNotificationPayload(pushNotificationPayload);

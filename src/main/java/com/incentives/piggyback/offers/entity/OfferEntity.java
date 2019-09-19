@@ -1,7 +1,6 @@
 package com.incentives.piggyback.offers.entity;
 
 import java.util.Date;
-import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,16 +17,14 @@ public class OfferEntity {
 	private Long offerId;
 	private String orderId;
 	private String partnerId;
-	private String vendorName;
-	private String vendorAppUrl;
+	private String partnerName;
+	private String partnerAppUrl;
 	private String offerCode;
 	private Location orderLocation;
-	private List<String> interestCategories;
+	private String interestCategory;
 	private Long initiatorUserId;
-	private double optimizationRadius;
-	private Integer offerQuota;
+	private Integer maxOptimizations;
 	private String offerStatus;
-	private String benefit;
 	private String offerDescription;
 	private Date createdDate;
 	private Date lastModifiedDate;

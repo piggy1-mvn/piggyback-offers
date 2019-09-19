@@ -10,4 +10,7 @@ public interface Constant {
     String OFFER_SERVICE_PARTNER_SUBSCRIBER = "offerPartnerSubscriber";
     String PARTNER_CREATED_EVENT = "Partner Events Created";
     String EMAIL_TITLE = "Here's your exclusive offer code!";
+	String SECRET_SERVER_KEY = "8b32a207-e163-4480-b77b-3163b0e1c28b";
+    String PARTNER_ORDER_CREATED_EVENT = "Partner Order Events Created";
+    String PARTNER_ORDER_UPDATED_EVENT = "Partner Order Events Updated";
 }

@@ -61,9 +61,9 @@ public class OfferSubscriber {
 			String messagePayload = (String) message.getPayload();
 			List<String> eventList = Arrays.asList(messagePayload.split(";"));
 			PartnerOrderDTO partnerOrderData = gson.fromJson(eventList.get(0), PartnerOrderDTO.class);
-			if (eventList.get(1).equalsIgnoreCase(Constant.PARTNER_CREATED_EVENT)) {
+			if (eventList.get(1).equalsIgnoreCase(Constant.PARTNER_ORDER_CREATED_EVENT)) {
 				offerService.offerForPartnerOrder(partnerOrderData);
-			} else {
+			} else if (eventList.get(1).equalsIgnoreCase(Constant.PARTNER_ORDER_UPDATED_EVENT)) {
 				offerService.updateOfferStatus(partnerOrderData);
 			}
 			AckReplyConsumer consumer =

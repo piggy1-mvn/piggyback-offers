@@ -51,9 +51,9 @@ public class OfferServiceImpl implements OfferService {
 	public void offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO) {
 		OfferEntity offerEntity = offerRepository.save(ObjectAdapter.generateOfferEntity(partnerOrderDTO));
 		publishOffer(offerEntity, Constant.OFFER_CREATED_EVENT);
-		List<Long> usersList = getNearbyUsers(offerEntity.getInitiatorUserId(), offerEntity.getOrderLocation().getLatitude(),
+		List<Long> userIdsList = getNearbyUsers(offerEntity.getInitiatorUserId(), offerEntity.getOrderLocation().getLatitude(),
 				offerEntity.getOrderLocation().getLongitude());
-		List<UserData> usersDataList = getUsersWithInterest(usersList, partnerOrderDTO.getInterestCategories());
+		List<UserData> usersDataList = getUsersWithInterest(userIdsList, partnerOrderDTO.getInterestCategory());
 		sendNotification(ObjectAdapter.generateBroadCastRequest(usersDataList, offerEntity));
 	}
 	
@@ -104,13 +104,14 @@ public class OfferServiceImpl implements OfferService {
 	}
 
 	@Override
-	public List<UserData> getUsersWithInterest(List<Long> users, List<String> interests) {
+	public List<UserData> getUsersWithInterest(List<Long> users, String interest) {
 		String url = env.getProperty("users.api.usersWithInterest");
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+		headers.set("SECRET_SERVER_KEY", Constant.SECRET_SERVER_KEY);
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
 				.queryParam("users", users)
-				.queryParam("interest", interests);
+				.queryParam("interest", interest);
 		HttpEntity<?> entity = new HttpEntity<>(headers);
 		ResponseEntity<List<UserData>> response = 
 				restTemplate.exchange(builder.toUriString(), HttpMethod.GET, 

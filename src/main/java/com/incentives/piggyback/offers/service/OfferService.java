@@ -12,9 +12,9 @@ public interface OfferService {
 
 	String sendNotification(BroadcastRequest broadcastRequest);
 
-	List<UserData> getUsersWithInterest(List<Long> users, List<String> interests);
-
 	void offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO);
 
 	void updateOfferStatus(PartnerOrderDTO partnerOrderData);
+
+	List<UserData> getUsersWithInterest(List<Long> users, String interest);
 }
