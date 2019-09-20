@@ -6,7 +6,6 @@ cache:
   directories:
   - "$HOME/.m2"
   - "$HOME/.sonar/cache"
-  - "$HOME/google-cloud-sdk"
 
 before_install:
       - openssl aes-256-cbc -k "$DECRYPT_KEY" -in secret-storage.json.enc -out secret-storage.json -d -md sha256
@@ -25,15 +24,11 @@ script:
 - docker build -t piggy1/offers .
 - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - docker push piggy1/offers
-- gcloud version || true
-- if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
-- source /home/travis/google-cloud-sdk/path.bash.inc
-- gcloud version
 - mvn -Pprod clean verify
 - docker build -t offers-prod .
-- if [ "$TRAVIS_BRANCH" = "master" ]; then docker tag offers-prod gcr.io/absolute-text-251105/piggy1-offers:v1; fi
-- if [ "$TRAVIS_BRANCH" = "master" ]; then cat secret-storage.json | docker login -u _json_key --password-stdin https://gcr.io; fi
-- if [ "$TRAVIS_BRANCH" = "master" ]; then docker push gcr.io/absolute-text-251105/piggy1-offers:v1; fi
+- if [ $TRAVIS_BRANCH == "master" ] && [ $TRAVIS_EVENT_TYPE == "push" ]; then docker tag offers-prod gcr.io/absolute-text-251105/piggy1-offers:v1; fi
+- if [ $TRAVIS_BRANCH == "master" ] && [ $TRAVIS_EVENT_TYPE == "push" ]; then cat secret-storage.json | docker login -u _json_key --password-stdin https://gcr.io; fi
+- if [ $TRAVIS_BRANCH == "master" ] && [ $TRAVIS_EVENT_TYPE == "push" ]; then docker push gcr.io/absolute-text-251105/piggy1-offers:v1; fi
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
