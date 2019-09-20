@@ -8,8 +8,6 @@ import com.incentives.piggyback.offers.dto.UserData;
 
 public interface OfferService {
 
-	List<Long> getNearbyUsers(Long userId, double latitude, double longitude);
-
 	String sendNotification(BroadcastRequest broadcastRequest);
 
 	void offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO);
@@ -17,4 +15,6 @@ public interface OfferService {
 	void updateOfferStatus(PartnerOrderDTO partnerOrderData);
 
 	List<UserData> getUsersWithInterest(List<Long> users, String interest);
+
+	List<Long> getNearbyUsers(Long userId, double latitude, double longitude, double optimizedRadius);
 }

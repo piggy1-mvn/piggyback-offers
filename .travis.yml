@@ -1,33 +1,43 @@
-language:
-  java
+language: java
 
-sudo:
-  false
+sudo: false
 
 cache:
   directories:
-    - $HOME/.m2
-    - $HOME/.sonar/cache
+  - "$HOME/.m2"
+  - "$HOME/.sonar/cache"
+  - "$HOME/google-cloud-sdk"
 
-install:
-  skip
+before_install:
+      - openssl aes-256-cbc -k "$DECRYPT_KEY" -in secret-storage.json.enc -out secret-storage.json -d -md sha256
+
+install: skip
 
 addons:
   sonarcloud:
-    organization: "piggyback"
+    organization: piggyback
 
 services:
-  - docker
+- docker
 
 script:
-  - mvn clean verify sonar:sonar -Dsonar.projectKey=piggy1-mvn_piggyback-offers
-  - docker build -t piggy1/offers .
-
-deploy:
-  provider: script
-  script: bash docker_push
-  on:
-    branch: master
+- mvn clean verify sonar:sonar -Dsonar.projectKey=piggy1-mvn_piggyback-offers
+- docker build -t piggy1/offers .
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+- docker push piggy1/offers
+- gcloud version || true
+- if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
+- source /home/travis/google-cloud-sdk/path.bash.inc
+- gcloud version
+- mvn -Pprod clean verify
+- docker build -t offers-prod .
+- if [ "$TRAVIS_BRANCH" = "master" ]; then docker tag offers-prod gcr.io/absolute-text-251105/piggy1-offers:v1; fi
+- if [ "$TRAVIS_BRANCH" = "master" ]; then cat secret-storage.json | docker login -u _json_key --password-stdin https://gcr.io; fi
+- if [ "$TRAVIS_BRANCH" = "master" ]; then docker push gcr.io/absolute-text-251105/piggy1-offers:v1; fi
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+- bash <(curl -s https://codecov.io/bash)
+
+env:
+  global:
+    secure: pEFH8ZpxKVILFLPsFDX1sBwVJ1ZHyb2/LjNzuQRWIM7QipvX0AyfpOoo549ZdaveldYpSgx6FBs/vebsXGZZejqEAj6OTpU5lyrztLOGKdWC9MKWy7b0hbS7FUKTOrouzUUpc9cFJDRmNtZRWwQokwNWE8cJGlTpPJU+PpT3Oubh2BCWDN8fGElFqkmaujv9Dqv2SrUlOqyoban6aEOA7EOu8KgNgrYIGFCCXiQX6ygjkA1TIjpnQ7ZDvNnz6Jp5gu58pLYO1xIX/7Ngk1pyCqiLuvuRDDsK3Z415VOtf5Uw5UQVKQ9W90WGKY550o4TWSLx08BsaiK0hWlm9V3nvfHkTi8wKazQJJ3C1IONQg7bkMhhb9rJG0IiNgCe1RtP0R7U1cyxIUfmGUDsbb12eaLpqU9Tl4rhlX/oMFbisbTPstExOQa8Y0gOmCkU8Y9k9uC3EgghhkPqFyTQQ2/AW/KvXb6K2OtaQZNEEqB1J4fPOHa4UqvcPMelUnm9w7xFc4dkjtLdnpLfYEOCBDcy9tbZkJ/A5Zqlchqiw5QwnPiYU08jpmt2pqFq1BMniRgVQEDuPCidl2Vy9uMGgPYlxiSvYWL0KfkHf1xU0tinvu43yiD/pAdufFgUa5nErwMAD959o9lCzm5ycklyydm3Fad9tfLZai7YxpzR6t37/Jo=

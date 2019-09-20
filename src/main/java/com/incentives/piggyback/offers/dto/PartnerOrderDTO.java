@@ -20,4 +20,5 @@ public class PartnerOrderDTO {
 	private Integer isActive;
 	private String partnerDisplayName;
 	private String partnerRedirectUrl;
+	private double optimizationRadius;
 }
