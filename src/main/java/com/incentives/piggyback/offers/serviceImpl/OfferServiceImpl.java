@@ -7,11 +7,7 @@ import com.incentives.piggyback.offers.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -44,7 +40,7 @@ public class OfferServiceImpl implements OfferService {
 	Gson gson = new Gson();
 
 	@Override
-	public void offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO) {
+	public OfferEntity offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO) {
 		OfferEntity offerEntity = offerRepository.save(ObjectAdapter.generateOfferEntity(partnerOrderDTO));
 		publishOffer(offerEntity, Constant.OFFER_CREATED_EVENT);
 		sendWebhookToPartner(offerEntity);
@@ -52,6 +48,7 @@ public class OfferServiceImpl implements OfferService {
 				offerEntity.getOrderLocation().getLongitude(), offerEntity.getOptimizationRadius());
 		List<UserData> usersDataList = getUsersWithInterest(userIdsList, partnerOrderDTO.getOrderType());
 		sendNotification(ObjectAdapter.generateBroadCastRequest(usersDataList, offerEntity));
+		return offerEntity;
 	}
 	
 
@@ -66,7 +63,7 @@ public class OfferServiceImpl implements OfferService {
 		sendWebhookToPartner(offer);
 	}
 
-	private String sendWebhookToPartner(OfferEntity offer) {
+	private HttpStatus sendWebhookToPartner(OfferEntity offer) {
 		String url = env.getProperty("notification.api.webhook") + "?webhookurl=" + offer.getPartnerAppUrl();
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
@@ -74,10 +71,8 @@ public class OfferServiceImpl implements OfferService {
 		ResponseEntity<WebhookResponse> response =
 				restTemplate.exchange(url, HttpMethod.POST,
 						entity, WebhookResponse.class);
-		if (CommonUtility.isNullObject(response.getBody()) ||
-				CommonUtility.isValidString(response.getBody().getData()))
-			throw new InvalidRequestException("Webhook of notifications failed");
-		return response.getBody().getData();
+		response.getStatusCode();
+		return response.getStatusCode();
 	}
 
 	@Override
