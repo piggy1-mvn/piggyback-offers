@@ -21,4 +21,5 @@ public class PartnerOrderDTO {
 	private String partnerDisplayName;
 	private String partnerRedirectUrl;
 	private Integer optimizationRadius;
+	private String partnerWebHookAddress;
 }

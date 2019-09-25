@@ -19,6 +19,7 @@ public class OfferEntity {
 	private String partnerId;
 	private String partnerName;
 	private String partnerAppUrl;
+	private String partnerWebHookAddress;
 	private String offerCode;
 	private Location orderLocation;
 	private String orderType;

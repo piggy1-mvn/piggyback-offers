@@ -80,7 +80,7 @@ public class OfferServiceImpl implements OfferService {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
-				.queryParam("webhookurl", offer.getPartnerAppUrl());
+				.queryParam("webhookurl", offer.getPartnerWebHookAddress());
 		HttpEntity<?> entity = new HttpEntity<>(offer, headers);
 		ResponseEntity<WebhookResponse> response =
 				restTemplate.exchange(builder.toUriString(), HttpMethod.POST,
