@@ -75,5 +75,4 @@ public class OfferSubscriber {
 			consumer.ack();
 		};
 	}
-
 }
