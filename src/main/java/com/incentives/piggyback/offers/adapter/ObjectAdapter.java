@@ -85,9 +85,9 @@ public class ObjectAdapter {
 	}
 
 
-	public static Date generateExpiryDate(double optimizationDuration) {
+	public static Date generateExpiryDate(Integer optimizationDuration) {
 		Calendar expiryCal = Calendar.getInstance();
-		expiryCal.add(Calendar.SECOND, Integer.parseInt(""+optimizationDuration));
+		expiryCal.add(Calendar.SECOND, optimizationDuration);
 		return expiryCal.getTime();
 	}
 
