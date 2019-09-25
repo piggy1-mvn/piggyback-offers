@@ -153,9 +153,6 @@ public class OfferServiceImpl implements OfferService {
 		ResponseEntity<JwtResponse> response = 
 				restTemplate.exchange(url, HttpMethod.POST, 
 						entity, JwtResponse.class);
-		if (CommonUtility.isNullObject(response.getBody()) ||
-				CommonUtility.isValidString(response.getBody().getJwttoken()))
-			throw new InvalidRequestException("Broadcast of notifications failed");
 		return response.getBody().getJwttoken();
 	}
 
