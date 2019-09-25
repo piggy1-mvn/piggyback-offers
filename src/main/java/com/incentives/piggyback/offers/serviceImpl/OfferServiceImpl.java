@@ -9,6 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,11 @@ import com.incentives.piggyback.offers.adapter.ObjectAdapter;
 import com.incentives.piggyback.offers.dto.BroadcastRequest;
 import com.incentives.piggyback.offers.dto.BroadcastResponse;
 import com.incentives.piggyback.offers.dto.GetUsersResponse;
+import com.incentives.piggyback.offers.dto.JwtResponse;
 import com.incentives.piggyback.offers.dto.PartnerOrderDTO;
+import com.incentives.piggyback.offers.dto.UserCredential;
 import com.incentives.piggyback.offers.dto.UserData;
+import com.incentives.piggyback.offers.dto.WebhookResponse;
 import com.incentives.piggyback.offers.entity.OfferEntity;
 import com.incentives.piggyback.offers.exception.InvalidRequestException;
 import com.incentives.piggyback.offers.publisher.OffersEventPublisher;
@@ -48,15 +52,17 @@ public class OfferServiceImpl implements OfferService {
 	Gson gson = new Gson();
 
 	@Override
-	public void offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO) {
+	public OfferEntity offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO) {
 		OfferEntity offerEntity = offerRepository.save(ObjectAdapter.generateOfferEntity(partnerOrderDTO));
 		publishOffer(offerEntity, Constant.OFFER_CREATED_EVENT);
+		sendWebhookToPartner(offerEntity);
 		List<Long> userIdsList = getNearbyUsers(offerEntity.getInitiatorUserId(), offerEntity.getOrderLocation().getLatitude(),
 				offerEntity.getOrderLocation().getLongitude(), offerEntity.getOptimizationRadius());
 		List<UserData> usersDataList = getUsersWithInterest(userIdsList, partnerOrderDTO.getOrderType());
 		sendNotification(ObjectAdapter.generateBroadCastRequest(usersDataList, offerEntity));
+		return offerEntity;
 	}
-	
+
 
 	@Override
 	public void updateOfferStatus(PartnerOrderDTO partnerOrderData) {
@@ -66,6 +72,19 @@ public class OfferServiceImpl implements OfferService {
 		OfferEntity offer = offerList.get(0);
 		offerRepository.save(ObjectAdapter.updateOfferEntity(offer, partnerOrderData));
 		publishOffer(offer, Constant.OFFER_UPDATED_EVENT);
+		sendWebhookToPartner(offer);
+	}
+
+	private HttpStatus sendWebhookToPartner(OfferEntity offer) {
+		String url = env.getProperty("notification.api.webhook") + "?webhookurl=" + offer.getPartnerAppUrl();
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+		HttpEntity<?> entity = new HttpEntity<>(offer, headers);
+		ResponseEntity<WebhookResponse> response =
+				restTemplate.exchange(url, HttpMethod.POST,
+						entity, WebhookResponse.class);
+		response.getStatusCode();
+		return response.getStatusCode();
 	}
 
 	@Override
@@ -109,7 +128,7 @@ public class OfferServiceImpl implements OfferService {
 		String url = env.getProperty("users.api.usersWithInterest");
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
-		headers.set("SECRET_SERVER_KEY", Constant.SECRET_SERVER_KEY);
+		headers.set("Authorization", "Bearer"+ generateLoginToken());
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
 				.queryParam("users", users)
 				.queryParam("interest", interest);
@@ -123,6 +142,29 @@ public class OfferServiceImpl implements OfferService {
 		return response.getBody();
 	}
 	
+
+	private String generateLoginToken() {
+		String url = env.getProperty("user.api.login");
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+		HttpEntity<?> entity = new HttpEntity<>(setUserCredentials(), headers);
+		ResponseEntity<JwtResponse> response = 
+				restTemplate.exchange(url, HttpMethod.POST, 
+						entity, JwtResponse.class);
+		if (CommonUtility.isNullObject(response.getBody()) ||
+				CommonUtility.isValidString(response.getBody().getJwttoken()))
+			throw new InvalidRequestException("Broadcast of notifications failed");
+		return response.getBody().getJwttoken();
+	}
+
+
+	private UserCredential setUserCredentials() {
+		UserCredential userCredential = new UserCredential();
+		userCredential.setEmail(env.getProperty("user.login.email"));
+		userCredential.setUser_password(env.getProperty("user.login.password"));
+		return userCredential;
+	}
+
 
 	private void publishOffer(OfferEntity offer, String status) {
 		messagingGateway.sendToPubsub(

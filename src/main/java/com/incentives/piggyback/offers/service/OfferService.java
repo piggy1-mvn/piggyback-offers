@@ -5,12 +5,13 @@ import java.util.List;
 import com.incentives.piggyback.offers.dto.BroadcastRequest;
 import com.incentives.piggyback.offers.dto.PartnerOrderDTO;
 import com.incentives.piggyback.offers.dto.UserData;
+import com.incentives.piggyback.offers.entity.OfferEntity;
 
 public interface OfferService {
 
 	String sendNotification(BroadcastRequest broadcastRequest);
 
-	void offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO);
+	OfferEntity offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO);
 
 	void updateOfferStatus(PartnerOrderDTO partnerOrderData);
 
