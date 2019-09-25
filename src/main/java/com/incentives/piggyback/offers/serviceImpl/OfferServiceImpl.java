@@ -130,7 +130,7 @@ public class OfferServiceImpl implements OfferService {
 		String url = env.getProperty("users.api.usersWithInterest");
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
-		headers.set("Authorization", "Bearer"+ generateLoginToken());
+		headers.set("Authorization", "Bearer "+ generateLoginToken());
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
 				.queryParam("users", users)
 				.queryParam("interest", interest);
