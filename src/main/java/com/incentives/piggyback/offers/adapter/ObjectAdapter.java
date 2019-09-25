@@ -31,6 +31,7 @@ public class ObjectAdapter {
 		offerEntity.setMaxOptimizations(partnerOrderDTO.getMaxOptimizations());
 		offerEntity.setOfferStatus(OfferStatus.ACTIVE.name());
 		offerEntity.setPartnerAppUrl(partnerOrderDTO.getPartnerRedirectUrl());
+		offerEntity.setPartnerWebHookAddress(partnerOrderDTO.getPartnerWebHookAddress());
 		offerEntity.setOptimizationRadius(partnerOrderDTO.getOptimizationRadius());
 		offerEntity.setPartnerName(partnerOrderDTO.getPartnerDisplayName());
 		offerEntity.setOfferDescription(partnerOrderDTO.getOrderType());
