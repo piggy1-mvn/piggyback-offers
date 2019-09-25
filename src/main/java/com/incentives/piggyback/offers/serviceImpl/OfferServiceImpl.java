@@ -105,7 +105,7 @@ public class OfferServiceImpl implements OfferService {
 				restTemplate.exchange(builder.toUriString(), HttpMethod.GET, 
 						entity, GetUsersResponse.class);
 		if (CommonUtility.isNullObject(response.getBody()) ||
-				CommonUtility.isValidList(response.getBody().getData()))
+				!CommonUtility.isValidList(response.getBody().getData()))
 			throw new InvalidRequestException("No nearby users present!");
 		return response.getBody().getData();
 	}
@@ -120,7 +120,7 @@ public class OfferServiceImpl implements OfferService {
 				restTemplate.exchange(url, HttpMethod.POST, 
 						entity, BroadcastResponse.class);
 		if (CommonUtility.isNullObject(response.getBody()) ||
-				CommonUtility.isValidString(response.getBody().getData()))
+				!CommonUtility.isValidString(response.getBody().getData()))
 			throw new InvalidRequestException("Broadcast of notifications failed");
 		return response.getBody().getData();
 	}
@@ -139,7 +139,7 @@ public class OfferServiceImpl implements OfferService {
 				restTemplate.exchange(builder.toUriString(), HttpMethod.GET, 
 						entity, new ParameterizedTypeReference<List<UserData>>(){});
 		if (CommonUtility.isNullObject(response.getBody()) ||
-				CommonUtility.isValidList(response.getBody()))
+				!CommonUtility.isValidList(response.getBody()))
 			throw new InvalidRequestException("No users with desired interest found!");
 		return response.getBody();
 	}
