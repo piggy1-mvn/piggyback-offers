@@ -1,13 +1,9 @@
 package com.incentives.piggyback.offers.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import java.io.Serializable;
+import lombok.Data;
 
-@Getter
-@AllArgsConstructor
-public class JwtResponse implements Serializable {
+@Data
+public class JwtResponse {
 
-	private static final long serialVersionUID = -8091879091924046844L;
 	private final String jwttoken;
 }
