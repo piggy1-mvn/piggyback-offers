@@ -3,6 +3,7 @@ package com.incentives.piggyback.offers.serviceImpl;
 import java.util.Calendar;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
@@ -132,7 +133,7 @@ public class OfferServiceImpl implements OfferService {
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
 		headers.set("Authorization", "Bearer "+ generateLoginToken());
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
-				.queryParam("users", users)
+				.queryParam("users", StringUtils.join(users, ','))
 				.queryParam("interest", interest);
 		HttpEntity<?> entity = new HttpEntity<>(headers);
 		ResponseEntity<List<UserData>> response = 
