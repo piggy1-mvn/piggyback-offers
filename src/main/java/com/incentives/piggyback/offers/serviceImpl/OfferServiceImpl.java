@@ -76,12 +76,14 @@ public class OfferServiceImpl implements OfferService {
 	}
 
 	private HttpStatus sendWebhookToPartner(OfferEntity offer) {
-		String url = env.getProperty("notification.api.webhook") + "?webhookurl=" + offer.getPartnerAppUrl();
+		String url = env.getProperty("notification.api.webhook");
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
+				.queryParam("webhookurl", offer.getPartnerAppUrl());
 		HttpEntity<?> entity = new HttpEntity<>(offer, headers);
 		ResponseEntity<WebhookResponse> response =
-				restTemplate.exchange(url, HttpMethod.POST,
+				restTemplate.exchange(builder.toUriString(), HttpMethod.POST,
 						entity, WebhookResponse.class);
 		response.getStatusCode();
 		return response.getStatusCode();
