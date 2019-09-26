@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
@@ -34,6 +36,7 @@ import com.incentives.piggyback.offers.repository.OfferRepository;
 import com.incentives.piggyback.offers.service.OfferService;
 import com.incentives.piggyback.offers.utils.CommonUtility;
 import com.incentives.piggyback.offers.utils.constants.Constant;
+import com.incentives.piggyback.offers.utils.constants.OfferStatus;
 
 @Service
 public class OfferServiceImpl implements OfferService {
@@ -52,15 +55,24 @@ public class OfferServiceImpl implements OfferService {
 
 	Gson gson = new Gson();
 
+	private static final Logger log = LoggerFactory.getLogger(OfferServiceImpl.class);
+
 	@Override
 	public OfferEntity offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO) {
+		log.info("offerForPartnerOrder partnerOrderDTO {}", partnerOrderDTO);
 		OfferEntity offerEntity = offerRepository.save(ObjectAdapter.generateOfferEntity(partnerOrderDTO));
 		publishOffer(offerEntity, Constant.OFFER_CREATED_EVENT);
 		sendWebhookToPartner(offerEntity);
-		List<Long> userIdsList = getNearbyUsers(offerEntity.getInitiatorUserId(), offerEntity.getOrderLocation().getLatitude(),
-				offerEntity.getOrderLocation().getLongitude(), offerEntity.getOptimizationRadius());
-		List<UserData> usersDataList = getUsersWithInterest(userIdsList, partnerOrderDTO.getOrderType());
-		sendNotification(ObjectAdapter.generateBroadCastRequest(usersDataList, offerEntity));
+		try {
+			List<Long> userIdsList = getNearbyUsers(offerEntity.getInitiatorUserId(), offerEntity.getOrderLocation().getLatitude(),
+					offerEntity.getOrderLocation().getLongitude(), offerEntity.getOptimizationRadius());
+			log.info("offerForPartnerOrder userid list {}", userIdsList);
+			List<UserData> usersDataList = getUsersWithInterest(userIdsList, partnerOrderDTO.getOrderType());
+			log.info("offerForPartnerOrder usersDataList {}", usersDataList);
+			sendNotification(ObjectAdapter.generateBroadCastRequest(usersDataList, offerEntity));
+		} catch (Exception e) {
+			log.error("offer for partner order failed as {}", e);
+		}
 		return offerEntity;
 	}
 
@@ -68,11 +80,17 @@ public class OfferServiceImpl implements OfferService {
 	@Override
 	public void updateOfferStatus(PartnerOrderDTO partnerOrderData) {
 		List<OfferEntity> offerList = offerRepository.findByOrderId(partnerOrderData.getOrderId());
-		if (!CommonUtility.isValidList(offerList))
-			throw new InvalidRequestException("No offer available for this id");
+		if (!CommonUtility.isValidList(offerList)) {
+			log.info("There is no offer available for this id so closing the message");
+			return;
+		}
 		OfferEntity offer = offerList.get(0);
 		offerRepository.save(ObjectAdapter.updateOfferEntity(offer, partnerOrderData));
-		publishOffer(offer, Constant.OFFER_UPDATED_EVENT);
+		if (offer.getOfferStatus().equals(OfferStatus.INACTIVE.name())) {
+			publishOffer(offer, Constant.OFFER_DEACTIVATED_EVENT);
+		} else {
+			publishOffer(offer, Constant.OFFER_UPDATED_EVENT);
+		}
 		sendWebhookToPartner(offer);
 	}
 
@@ -113,6 +131,7 @@ public class OfferServiceImpl implements OfferService {
 
 	@Override
 	public String sendNotification(BroadcastRequest broadcastRequest) {
+		log.info("sendNotification broadcast data {}", broadcastRequest);
 		String url = env.getProperty("notification.api.broadcast");
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
@@ -144,7 +163,7 @@ public class OfferServiceImpl implements OfferService {
 			throw new InvalidRequestException("No users with desired interest found!");
 		return response.getBody();
 	}
-	
+
 
 	private String generateLoginToken() {
 		String url = env.getProperty("user.api.login");
