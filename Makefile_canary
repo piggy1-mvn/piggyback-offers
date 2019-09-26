@@ -1,0 +1,24 @@
+KEY_FILE:= kub-deploy.json
+PROJECT_ID:=absolute-text-251105
+K8s_CLUSTER:=piggy-prod-jenkins
+ZONE:=asia-southeast1-a
+
+IMAGE_NAME:=gcr.io/absolute-text-251105/piggy1-offers
+IMAGE_VERSION:=v3
+
+gauth:
+	@gcloud auth activate-service-account --key-file ${KEY_FILE}
+
+gconfig:
+	@gcloud config set project $(PROJECT_ID)
+	@gcloud container clusters get-credentials $(K8s_CLUSTER) --zone $(ZONE) --project $(PROJECT_ID)
+	@gcloud auth configure-docker
+
+build:
+	@docker build -t $(IMAGE_NAME):$(IMAGE_VERSION) .
+	
+push:
+	@docker push $(IMAGE_NAME):$(IMAGE_VERSION)
+
+deploy: gconfig
+	@kubectl apply -f k8s/canary/offers-deployment.yaml
