@@ -59,13 +59,16 @@ public class OfferServiceImpl implements OfferService {
 
 	@Override
 	public OfferEntity offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO) {
+		log.info("offerForPartnerOrder partnerOrderDTO {}", partnerOrderDTO);
 		OfferEntity offerEntity = offerRepository.save(ObjectAdapter.generateOfferEntity(partnerOrderDTO));
 		publishOffer(offerEntity, Constant.OFFER_CREATED_EVENT);
 		sendWebhookToPartner(offerEntity);
 		try {
 			List<Long> userIdsList = getNearbyUsers(offerEntity.getInitiatorUserId(), offerEntity.getOrderLocation().getLatitude(),
 					offerEntity.getOrderLocation().getLongitude(), offerEntity.getOptimizationRadius());
+			log.info("offerForPartnerOrder userid list {}", userIdsList);
 			List<UserData> usersDataList = getUsersWithInterest(userIdsList, partnerOrderDTO.getOrderType());
+			log.info("offerForPartnerOrder usersDataList {}", usersDataList);
 			sendNotification(ObjectAdapter.generateBroadCastRequest(usersDataList, offerEntity));
 		} catch (Exception e) {
 			log.error("offer for partner order failed as {}", e);

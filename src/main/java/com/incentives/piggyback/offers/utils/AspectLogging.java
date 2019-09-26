@@ -46,8 +46,7 @@ public class AspectLogging {
 			logger.info(joinPoint.getSignature() + " with arguments("+ loggerString.toString() + ") started...");
 			Object returnValue = joinPoint.proceed();
 			long timeTaken = System.currentTimeMillis() - startTime;
-			logger.info(joinPoint.getSignature() + " with arguments("+ loggerString.toString() + ") took "+ timeTaken+ "(ms)");
-			logger.debug(joinPoint.getSignature() + " with arguments("+ loggerString.toString() + ") took "+ timeTaken+ "(ms)" + " Output :: "+returnValue);
+			logger.info(joinPoint.getSignature() + " with arguments("+ loggerString.toString() + ") took "+ timeTaken+ "(ms)" + " Output :: "+returnValue);
 			return returnValue;
 		} catch (InvalidRequestException e) {
 			throw new InvalidRequestException(e.getMessage());
