@@ -35,7 +35,7 @@ public class OfferSubscriber {
 
 	@Autowired
 	private OfferService offerService;
-	
+
 	@Autowired
 	private Environment env;
 
@@ -64,11 +64,16 @@ public class OfferSubscriber {
 			LOGGER.info(env.getProperty(OFFER_SERVICE_PARTNER_SUBSCRIBER) + ": Payload: " + new String((byte[]) message.getPayload()));
 			String messagePayload = new String((byte[]) message.getPayload());
 			List<String> eventList = Arrays.asList(messagePayload.split(";"));
-			PartnerOrderDTO partnerOrderData = gson.fromJson(eventList.get(0), PartnerOrderDTO.class);
-			if (eventList.get(1).equalsIgnoreCase(Constant.PARTNER_ORDER_CREATED_EVENT)) {
-				offerService.offerForPartnerOrder(partnerOrderData);
-			} else if (eventList.get(1).equalsIgnoreCase(Constant.PARTNER_ORDER_UPDATED_EVENT)) {
-				offerService.updateOfferStatus(partnerOrderData);
+			PartnerOrderDTO partnerOrderData = null;
+			try {
+				partnerOrderData = gson.fromJson(eventList.get(0), PartnerOrderDTO.class);
+				if (eventList.get(1).equalsIgnoreCase(Constant.PARTNER_ORDER_CREATED_EVENT)) {
+					offerService.offerForPartnerOrder(partnerOrderData);
+				} else if (eventList.get(1).equalsIgnoreCase(Constant.PARTNER_ORDER_UPDATED_EVENT)) {
+					offerService.updateOfferStatus(partnerOrderData);
+				}
+			} catch (Exception e) {
+				LOGGER.error("messageReceiverForPartner: failed error {}", e);
 			}
 			AckReplyConsumer consumer =
 					(AckReplyConsumer) message.getHeaders().get(GcpPubSubHeaders.ACKNOWLEDGEMENT);

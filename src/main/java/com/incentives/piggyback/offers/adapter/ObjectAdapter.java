@@ -93,6 +93,6 @@ public class ObjectAdapter {
 	}
 
 	public static String generateOfferCode() {
-		return "Pig-inc-"+UUID.randomUUID().toString().subSequence(5, 10);
+		return "PIG"+UUID.randomUUID().toString().subSequence(5, 9);
 	}
 }
