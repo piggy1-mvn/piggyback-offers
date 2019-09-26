@@ -36,6 +36,7 @@ import com.incentives.piggyback.offers.repository.OfferRepository;
 import com.incentives.piggyback.offers.service.OfferService;
 import com.incentives.piggyback.offers.utils.CommonUtility;
 import com.incentives.piggyback.offers.utils.constants.Constant;
+import com.incentives.piggyback.offers.utils.constants.OfferStatus;
 
 @Service
 public class OfferServiceImpl implements OfferService {
@@ -55,7 +56,6 @@ public class OfferServiceImpl implements OfferService {
 	Gson gson = new Gson();
 
 	private static final Logger log = LoggerFactory.getLogger(OfferServiceImpl.class);
-
 
 	@Override
 	public OfferEntity offerForPartnerOrder(PartnerOrderDTO partnerOrderDTO) {
@@ -86,7 +86,11 @@ public class OfferServiceImpl implements OfferService {
 		}
 		OfferEntity offer = offerList.get(0);
 		offerRepository.save(ObjectAdapter.updateOfferEntity(offer, partnerOrderData));
-		publishOffer(offer, Constant.OFFER_UPDATED_EVENT);
+		if (offer.getOfferStatus().equals(OfferStatus.INACTIVE.name())) {
+			publishOffer(offer, Constant.OFFER_DEACTIVATED_EVENT);
+		} else {
+			publishOffer(offer, Constant.OFFER_UPDATED_EVENT);
+		}
 		sendWebhookToPartner(offer);
 	}
 
