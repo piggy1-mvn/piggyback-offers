@@ -4,7 +4,7 @@ metadata:
   name: piggyback-offers-production
   namespace: production
 spec:
-  replicas: 2
+  replicas: 1
   progressDeadlineSeconds: 10
   template:
     metadata:
@@ -28,7 +28,7 @@ spec:
         resources:
           limits:
             memory: "384Mi"
-            cpu: "200m"
+            cpu: "500m"
         imagePullPolicy: Always
         ports:
         - name: piggy-offers
