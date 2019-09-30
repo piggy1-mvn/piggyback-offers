@@ -4,7 +4,7 @@ metadata:
   name: piggyback-offers-canary
   namespace: production
 spec:
-  replicas: 1
+  replicas: 0
   progressDeadlineSeconds: 10
   template:
     metadata:
@@ -17,7 +17,7 @@ spec:
           secret:
             secretName: pubsub-key
       containers:
-      - image: gcr.io/absolute-text-251105/piggy1-offers:v8
+      - image: gcr.io/absolute-text-251105/piggy1-offers:v9
         name: piggyback-prod-runner-offers
         volumeMounts:
           - name: google-cloud-key
