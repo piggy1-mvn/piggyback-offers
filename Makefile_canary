@@ -4,7 +4,7 @@ K8s_CLUSTER:=piggy-prod-jenkins
 ZONE:=asia-southeast1-a
 
 IMAGE_NAME:=gcr.io/absolute-text-251105/piggy1-offers
-IMAGE_VERSION:=v7
+IMAGE_VERSION:=v8
 
 gauth:
 	@gcloud auth activate-service-account --key-file ${KEY_FILE}
