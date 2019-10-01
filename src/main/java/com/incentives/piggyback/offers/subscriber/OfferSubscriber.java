@@ -42,13 +42,13 @@ public class OfferSubscriber {
 	Gson gson = new Gson();
 
 	@Bean
-	public MessageChannel pubsubInputChannelForPartner() {
+	public MessageChannel pubsubInputChannelForPartnerToOrder() {
 		return new DirectChannel();
 	}
 
 	@Bean
 	public PubSubInboundChannelAdapter messageChannelAdapterForPartner(
-			@Qualifier("pubsubInputChannelForPartner") MessageChannel inputChannel, PubSubTemplate pubSubTemplate) {
+			@Qualifier("pubsubInputChannelForPartnerToOrder") MessageChannel inputChannel, PubSubTemplate pubSubTemplate) {
 
 		PubSubInboundChannelAdapter adapter =
 				new PubSubInboundChannelAdapter(pubSubTemplate, env.getProperty(OFFER_SERVICE_PARTNER_SUBSCRIBER));
@@ -58,7 +58,7 @@ public class OfferSubscriber {
 	}
 
 	@Bean
-	@ServiceActivator(inputChannel = "pubsubInputChannelForPartner")
+	@ServiceActivator(inputChannel = "pubsubInputChannelForPartnerToOrder")
 	public MessageHandler messageReceiverForPartner() {
 		return message -> {
 			LOGGER.info(env.getProperty(OFFER_SERVICE_PARTNER_SUBSCRIBER) + ": Payload: " + new String((byte[]) message.getPayload()));
