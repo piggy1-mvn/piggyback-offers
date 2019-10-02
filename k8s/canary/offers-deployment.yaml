@@ -17,7 +17,7 @@ spec:
           secret:
             secretName: pubsub-key
       containers:
-      - image: gcr.io/absolute-text-251105/piggy1-offers:v10
+      - image: gcr.io/absolute-text-251105/piggy1-offers:v11
         name: piggyback-prod-runner-offers
         volumeMounts:
           - name: google-cloud-key
