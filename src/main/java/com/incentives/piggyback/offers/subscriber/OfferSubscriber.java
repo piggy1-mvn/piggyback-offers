@@ -42,7 +42,7 @@ public class OfferSubscriber {
 	Gson gson = new Gson();
 
 	@Bean
-	public MessageChannel pubsubInputChannelForPartner() {
+	public MessageChannel pubsubInputChannelForPartnerToOffer() {
 		return new DirectChannel();
 	}
 
