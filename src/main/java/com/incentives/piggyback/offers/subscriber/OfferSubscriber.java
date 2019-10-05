@@ -14,6 +14,7 @@ import org.springframework.cloud.gcp.pubsub.integration.AckMode;
 import org.springframework.cloud.gcp.pubsub.integration.inbound.PubSubInboundChannelAdapter;
 import org.springframework.cloud.gcp.pubsub.support.GcpPubSubHeaders;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.MessageChannel;
@@ -35,6 +36,9 @@ public class OfferSubscriber {
 	@Autowired
 	private OfferService offerService;
 
+	@Autowired
+	private Environment env;
+
 	Gson gson = new Gson();
 
 	@Bean
@@ -47,7 +51,7 @@ public class OfferSubscriber {
 			@Qualifier("pubsubInputChannelForPartnerToOffer") MessageChannel inputChannel, PubSubTemplate pubSubTemplate) {
 
 		PubSubInboundChannelAdapter adapter =
-				new PubSubInboundChannelAdapter(pubSubTemplate, OFFER_SERVICE_PARTNER_SUBSCRIBER);
+				new PubSubInboundChannelAdapter(pubSubTemplate, env.getProperty(OFFER_SERVICE_PARTNER_SUBSCRIBER));
 		adapter.setOutputChannel(inputChannel);
 		adapter.setAckMode(AckMode.MANUAL);
 		return adapter;
@@ -57,19 +61,23 @@ public class OfferSubscriber {
 	@ServiceActivator(inputChannel = "pubsubInputChannelForPartnerToOffer")
 	public MessageHandler messageReceiverForPartner() {
 		return message -> {
-			LOGGER.info(OFFER_SERVICE_PARTNER_SUBSCRIBER + ": Payload: " + new String((byte[]) message.getPayload()));
-			String messagePayload = (String) message.getPayload();
+			LOGGER.info(env.getProperty(OFFER_SERVICE_PARTNER_SUBSCRIBER) + ": Payload: " + new String((byte[]) message.getPayload()));
+			String messagePayload = new String((byte[]) message.getPayload());
 			List<String> eventList = Arrays.asList(messagePayload.split(";"));
-			PartnerOrderDTO partnerOrderData = gson.fromJson(eventList.get(0), PartnerOrderDTO.class);
-			if (eventList.get(1).equalsIgnoreCase(Constant.PARTNER_ORDER_CREATED_EVENT)) {
-				offerService.offerForPartnerOrder(partnerOrderData);
-			} else if (eventList.get(1).equalsIgnoreCase(Constant.PARTNER_ORDER_UPDATED_EVENT)) {
-				offerService.updateOfferStatus(partnerOrderData);
+			PartnerOrderDTO partnerOrderData = null;
+			try {
+				partnerOrderData = gson.fromJson(eventList.get(0), PartnerOrderDTO.class);
+				if (eventList.get(1).equalsIgnoreCase(Constant.PARTNER_ORDER_CREATED_EVENT)) {
+					offerService.offerForPartnerOrder(partnerOrderData);
+				} else if (eventList.get(1).equalsIgnoreCase(Constant.PARTNER_ORDER_UPDATED_EVENT)) {
+					offerService.updateOfferStatus(partnerOrderData);
+				}
+			} catch (Exception e) {
+				LOGGER.error("messageReceiverForPartner: failed error {}", e);
 			}
 			AckReplyConsumer consumer =
 					(AckReplyConsumer) message.getHeaders().get(GcpPubSubHeaders.ACKNOWLEDGEMENT);
 			consumer.ack();
 		};
 	}
-
 }

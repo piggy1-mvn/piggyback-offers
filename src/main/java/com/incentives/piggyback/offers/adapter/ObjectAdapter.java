@@ -31,6 +31,7 @@ public class ObjectAdapter {
 		offerEntity.setMaxOptimizations(partnerOrderDTO.getMaxOptimizations());
 		offerEntity.setOfferStatus(OfferStatus.ACTIVE.name());
 		offerEntity.setPartnerAppUrl(partnerOrderDTO.getPartnerRedirectUrl());
+		offerEntity.setPartnerWebHookAddress(partnerOrderDTO.getPartnerWebHookAddress());
 		offerEntity.setOptimizationRadius(partnerOrderDTO.getOptimizationRadius());
 		offerEntity.setPartnerName(partnerOrderDTO.getPartnerDisplayName());
 		offerEntity.setOfferDescription(partnerOrderDTO.getOrderType());
@@ -85,13 +86,13 @@ public class ObjectAdapter {
 	}
 
 
-	public static Date generateExpiryDate(double optimizationDuration) {
+	public static Date generateExpiryDate(Integer optimizationDuration) {
 		Calendar expiryCal = Calendar.getInstance();
-		expiryCal.add(Calendar.MILLISECOND, Integer.parseInt(""+optimizationDuration));
+		expiryCal.add(Calendar.SECOND, optimizationDuration);
 		return expiryCal.getTime();
 	}
 
 	public static String generateOfferCode() {
-		return "Pig-inc-"+UUID.randomUUID().toString().subSequence(5, 10);
+		return "PIG"+UUID.randomUUID().toString().subSequence(5, 8);
 	}
 }

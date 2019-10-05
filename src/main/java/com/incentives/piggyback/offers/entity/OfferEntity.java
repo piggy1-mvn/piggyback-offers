@@ -19,6 +19,7 @@ public class OfferEntity {
 	private String partnerId;
 	private String partnerName;
 	private String partnerAppUrl;
+	private String partnerWebHookAddress;
 	private String offerCode;
 	private Location orderLocation;
 	private String orderType;
@@ -29,5 +30,5 @@ public class OfferEntity {
 	private Date createdDate;
 	private Date lastModifiedDate;
 	private Date expiryDate;
-	private double optimizationRadius;
+	private Integer optimizationRadius;
 }

@@ -4,4 +4,4 @@ offers.iml
 .project
 .classpath
 secret-storage.json
-/bin/
+.settings/

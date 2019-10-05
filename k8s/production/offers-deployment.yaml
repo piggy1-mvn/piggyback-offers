@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: piggyback-offers-production
+  namespace: production
+spec:
+  replicas: 1
+  progressDeadlineSeconds: 10
+  template:
+    metadata:
+      labels:
+        app: piggyback-offers
+        env: production
+    spec:
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: pubsub-key
+      containers:
+      - image: gcr.io/absolute-text-251105/piggy1-offers:v10
+        name: piggyback-prod-runner-offers
+        volumeMounts:
+          - name: google-cloud-key
+            mountPath: /var/secrets/google
+        env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /var/secrets/google/secret.json
+        resources:
+          limits:
+            memory: "384Mi"
+            cpu: "500m"
+        imagePullPolicy: Always
+        ports:
+        - name: piggy-offers
+          containerPort: 8081
+        readinessProbe:
+          httpGet:
+            path: /swagger-ui.html
+            port: 8081
+status: {}
