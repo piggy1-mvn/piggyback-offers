@@ -17,18 +17,6 @@
 		<java.version>1.8</java.version>
 		<docker.image.prefix>piggy1</docker.image.prefix>
 	</properties>
-	<repositories>
-		<repository>
-			<id>piggy1-piggy_repo</id>
-			<url>https://packagecloud.io/piggy1/piggy_repo/maven2</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 	<profiles>
 		<profile>
 			<id>dev</id>
@@ -67,29 +55,12 @@
 			<version>2.9.2</version>
 		</dependency>
 		<dependency>
-			<groupId>com.incentives.piggyback</groupId>
-			<artifactId>common</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aspects</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-gcp-starter-pubsub</artifactId>
-			<version>1.1.2.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>23.0</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.integration</groupId>
 			<artifactId>spring-integration-core</artifactId>
-			<version>5.1.7.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.powermock</groupId>
@@ -111,6 +82,20 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.8.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.9</version>
 		</dependency>
 	</dependencies>
 	<build>
