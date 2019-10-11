@@ -19,7 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.google.gson.Gson;
 import com.incentives.piggyback.offers.dto.WebhookResponse;
 import com.incentives.piggyback.offers.entity.OfferEntity;
-import com.incentives.piggyback.offers.publisher.OffersEventPublisher;
+import com.incentives.piggyback.offers.publisher.KafkaMessageProducer;
 import com.incentives.piggyback.offers.repository.OfferRepository;
 import com.incentives.piggyback.offers.utils.CommonUtility;
 import com.incentives.piggyback.offers.utils.constants.Constant;
@@ -33,14 +33,18 @@ public class OfferValidator {
 
 	@Autowired
 	private RestTemplate restTemplate;
-	
-	@Autowired
-	private OffersEventPublisher.PubsubOutboundGateway messagingGateway;
 
 	@Autowired
 	private Environment env;
-	
+
+	private final KafkaMessageProducer kafkaMessageProducer;
+
 	Gson gson = new Gson();
+
+	public OfferValidator(KafkaMessageProducer kafkaMessageProducer) {
+		this.kafkaMessageProducer = kafkaMessageProducer;
+	}
+
 
 	@Scheduled(fixedRate = 100000)
 	public void validateOffer() {
@@ -73,7 +77,7 @@ public class OfferValidator {
 	}
 	
 	private void publishOffer(OfferEntity offer, String status) {
-		messagingGateway.sendToPubsub(
+		kafkaMessageProducer.send(
 				CommonUtility.stringifyEventForPublish(
 						gson.toJson(offer),
 						status,
