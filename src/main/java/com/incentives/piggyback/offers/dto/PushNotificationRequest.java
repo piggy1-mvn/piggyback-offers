@@ -8,5 +8,5 @@ import lombok.Data;
 public class PushNotificationRequest {
 
 	private PushNotificationPayload pushNotificationPayload;
-	private List<String> recepients;
+	private List<ReceipientInfo> recepients;
 }
