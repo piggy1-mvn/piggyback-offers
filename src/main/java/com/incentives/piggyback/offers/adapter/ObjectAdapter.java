@@ -6,12 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import com.incentives.piggyback.offers.dto.BroadcastRequest;
-import com.incentives.piggyback.offers.dto.EmailRequest;
-import com.incentives.piggyback.offers.dto.PartnerOrderDTO;
-import com.incentives.piggyback.offers.dto.PushNotificationPayload;
-import com.incentives.piggyback.offers.dto.PushNotificationRequest;
-import com.incentives.piggyback.offers.dto.UserData;
+import com.incentives.piggyback.offers.dto.*;
 import com.incentives.piggyback.offers.entity.OfferEntity;
 import com.incentives.piggyback.offers.utils.CommonUtility;
 import com.incentives.piggyback.offers.utils.constants.Constant;
@@ -62,15 +57,18 @@ public class ObjectAdapter {
 	public static BroadcastRequest generateBroadCastRequest(List<UserData> users, OfferEntity offer) {
 		BroadcastRequest broadcastRequest = new BroadcastRequest();
 		List<EmailRequest> emailList = new ArrayList<EmailRequest>();
-		List<String> recepients = new ArrayList<String>();
+		List<ReceipientInfo> recepients = new ArrayList<ReceipientInfo>();
 		users.forEach(user -> {
 			EmailRequest email = new EmailRequest();
+			ReceipientInfo receipientInfo = new ReceipientInfo();
 			email.setEmailId(user.getEmail());
 			email.setCouponCode(offer.getOfferCode());
 			email.setVendorDisplayName(offer.getPartnerName());
 			email.setRedirectUrl(offer.getPartnerAppUrl());
 			emailList.add(email);
-			recepients.add(user.getDevice_id());
+			receipientInfo.setDevice_id(user.getDevice_id());
+			receipientInfo.setUser_rsa(user.getUser_rsa());
+			recepients.add(receipientInfo);
 		});
 		PushNotificationRequest pushNotificationRequest = new PushNotificationRequest();
 		PushNotificationPayload pushNotificationPayload = new PushNotificationPayload();
@@ -93,6 +91,6 @@ public class ObjectAdapter {
 	}
 
 	public static String generateOfferCode() {
-		return "PIG"+UUID.randomUUID().toString().subSequence(5, 8);
+		return "PIGGY-INCENTIVES-VOUCHER-CODE"+UUID.randomUUID().toString().subSequence(5, 8);
 	}
 }
