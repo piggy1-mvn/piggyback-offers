@@ -46,7 +46,7 @@ public class OfferValidator {
 	}
 
 
-	@Scheduled(fixedRate = 100000)
+	@Scheduled(fixedRate = 600000)
 	public void validateOffer() {
 		List<OfferEntity> offersList = offerRepository.findByOfferStatus(OfferStatus.ACTIVE.name());
 		if (CommonUtility.isValidList(offersList)) {

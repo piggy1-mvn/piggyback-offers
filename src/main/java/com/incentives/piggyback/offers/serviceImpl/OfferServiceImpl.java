@@ -167,7 +167,6 @@ public class OfferServiceImpl implements OfferService {
 		return response.getBody();
 	}
 
-
 	private String generateLoginToken() {
 		String url = env.getProperty("user.api.login");
 		HttpHeaders headers = new HttpHeaders();
@@ -198,5 +197,4 @@ public class OfferServiceImpl implements OfferService {
 						Constant.OFFER_SOURCE_ID
 						));
 	}
-
 }
