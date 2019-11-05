@@ -12,19 +12,15 @@ spec:
         app: piggyback-offers
         env: production
     spec:
-      volumes:
-        - name: google-cloud-key
-          secret:
-            secretName: pubsub-key
       containers:
-      - image: gcr.io/absolute-text-251105/piggy1-offers:v10
+      - image: gcr.io/omega-palace-254907/piggy1-offers:v10
         name: piggyback-prod-runner-offers
-        volumeMounts:
-          - name: google-cloud-key
-            mountPath: /var/secrets/google
         env:
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /var/secrets/google/secret.json
+          - name: JASYPT_ENCRYPTOR_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: jasypt-password
+                key: password
         resources:
           limits:
             memory: "384Mi"
