@@ -18,4 +18,5 @@ public class UserData {
     private String user_role;
     private String user_type;
     private String device_id;
+    private String user_rsa;
 }

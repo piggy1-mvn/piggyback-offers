@@ -1,10 +1,10 @@
 KEY_FILE:= kub-deploy.json
-PROJECT_ID:=absolute-text-251105
-K8s_CLUSTER:=piggy-prod-jenkins
-ZONE:=asia-southeast1-a
+PROJECT_ID:=omega-palace-254907
+K8s_CLUSTER:=piggy-cluster
+ZONE:=asia-southeast1-b
 
-IMAGE_NAME:=gcr.io/absolute-text-251105/piggy1-offers
-IMAGE_VERSION:=v10
+IMAGE_NAME:=gcr.io/omega-palace-254907/piggy1-offers
+IMAGE_VERSION:=v11
 
 gauth:
 	@gcloud auth activate-service-account --key-file ${KEY_FILE}

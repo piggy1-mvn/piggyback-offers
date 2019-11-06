@@ -31,7 +31,7 @@ import com.incentives.piggyback.offers.dto.UserData;
 import com.incentives.piggyback.offers.dto.WebhookResponse;
 import com.incentives.piggyback.offers.entity.OfferEntity;
 import com.incentives.piggyback.offers.exception.InvalidRequestException;
-import com.incentives.piggyback.offers.publisher.OffersEventPublisher;
+import com.incentives.piggyback.offers.publisher.KafkaMessageProducer;
 import com.incentives.piggyback.offers.repository.OfferRepository;
 import com.incentives.piggyback.offers.service.OfferService;
 import com.incentives.piggyback.offers.utils.CommonUtility;
@@ -42,9 +42,6 @@ import com.incentives.piggyback.offers.utils.constants.OfferStatus;
 public class OfferServiceImpl implements OfferService {
 
 	@Autowired
-	private OffersEventPublisher.PubsubOutboundGateway messagingGateway;
-
-	@Autowired
 	private RestTemplate restTemplate;
 
 	@Autowired
@@ -53,7 +50,13 @@ public class OfferServiceImpl implements OfferService {
 	@Autowired
 	private OfferRepository offerRepository;
 
+	private final KafkaMessageProducer kafkaMessageProducer;
+
 	Gson gson = new Gson();
+
+	public OfferServiceImpl(KafkaMessageProducer kafkaMessageProducer) {
+		this.kafkaMessageProducer = kafkaMessageProducer;
+	}
 
 	private static final Logger log = LoggerFactory.getLogger(OfferServiceImpl.class);
 
@@ -164,7 +167,6 @@ public class OfferServiceImpl implements OfferService {
 		return response.getBody();
 	}
 
-
 	private String generateLoginToken() {
 		String url = env.getProperty("user.api.login");
 		HttpHeaders headers = new HttpHeaders();
@@ -186,7 +188,7 @@ public class OfferServiceImpl implements OfferService {
 
 
 	private void publishOffer(OfferEntity offer, String status) {
-		messagingGateway.sendToPubsub(
+		kafkaMessageProducer.send(
 				CommonUtility.stringifyEventForPublish(
 						gson.toJson(offer),
 						status,
@@ -195,5 +197,4 @@ public class OfferServiceImpl implements OfferService {
 						Constant.OFFER_SOURCE_ID
 						));
 	}
-
 }
