@@ -4,7 +4,7 @@ metadata:
   name: piggyback-offers-canary
   namespace: production
 spec:
-  replicas: 1
+  replicas: 0
   progressDeadlineSeconds: 10
   template:
     metadata:
