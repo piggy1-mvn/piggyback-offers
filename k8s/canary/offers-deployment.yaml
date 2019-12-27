@@ -2,7 +2,6 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: piggyback-offers-canary
-  namespace: production
 spec:
   replicas: 0
   progressDeadlineSeconds: 10
@@ -10,7 +9,6 @@ spec:
     metadata:
       labels:
         app: piggyback-offers
-        env: canary
     spec:
       containers:
       - image: gcr.io/omega-palace-254907/piggy1-offers:v11
